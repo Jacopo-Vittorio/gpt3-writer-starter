@@ -5,6 +5,30 @@ import { useState } from 'react';
 
 const Home = () => {
   const [userInput, setUserInput] = useState('');
+
+  const [apiOutput, setApiOutput] = useState('')
+const [isGenerating, setIsGenerating] = useState(false)
+
+const callGenerateEndpoint = async () => {
+  setIsGenerating(true);
+  
+  console.log("Calling OpenAI...")
+  const response = await fetch('/api/generate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ userInput }),
+  });
+
+  const data = await response.json();
+  const { output } = data;
+  console.log("OpenAI replied...", output.text)
+
+  setApiOutput(`${output.text}`);
+  setIsGenerating(false);
+}
+
   const onUserChangedText = (event) => {
     console.log(event.target.value); 
     setUserInput(event.target.value); 
@@ -18,14 +42,14 @@ const Home = () => {
       <div className="container">
         <div className="header">
           <div className="header-title">
-            <h1>sup, lets make it EASY ! </h1>
+            <h1>Hi, i am at your service my lord ! </h1>
           </div>
           <div className="header-subtitle">
             <h2>make your knowledge flow, make everything undestandable and summarized  </h2>
           </div>
            <div className="header-subtitle">
-            <h2>I was born not knowing and have had only a little time to change that here and there.
-Richard P. Feynman </h2>
+            <h2> ---I was born not knowing and have had only <br/>a little time to change that here and there.---<br/>
+                       Richard P. Feynman </h2>
           </div>
 
          <div className="prompt-container">
@@ -35,17 +59,27 @@ Richard P. Feynman </h2>
     value={userInput}
     onChange={onUserChangedText}
   />
-  {/* New code I added here */}
+  
   <div className="prompt-buttons">
-    <a className="generate-button" onClick={null}>
+    <a className="generate-button" onClick={callGenerateEndpoint}>
       <div className="generate">
-        <p>Generate</p>
+         {isGenerating ? <span className="loader"></span> : <p>Generate</p>}
       </div>
     </a>
+  </div>  
+  {apiOutput && (
+  <div className="output">
+    <div className="output-header-container">
+      <div className="output-header">
+        <h3>Output</h3>
+      </div>
+    </div>
+    <div className="output-content">
+      <p>{apiOutput}</p>
+    </div>
   </div>
+)}
 </div>
-
-
 
         </div>
       </div>
